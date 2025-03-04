@@ -180,6 +180,72 @@ function initializeSocket() {
     });
 }
 
+
+// Add this function somewhere after the global variables
+
+// Client-side thumbnail generation function
+function generateThumbnail(videoFile) {
+    return new Promise((resolve, reject) => {
+      // Create a video element
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+      
+      // Create object URL for the video file
+      const videoURL = URL.createObjectURL(videoFile);
+      video.src = videoURL;
+      
+      // Once video metadata is loaded
+      video.onloadedmetadata = () => {
+        // Set video to a specific time (1 second)
+        video.currentTime = 1;
+        
+        // When the video reaches that time
+        video.onseeked = () => {
+          // Create a canvas element
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          
+          // Draw video frame to canvas
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          
+          // Convert canvas to blob (JPEG format)
+          canvas.toBlob((blob) => {
+            // Clean up
+            URL.revokeObjectURL(videoURL);
+            
+            // Resolve with the blob
+            resolve(blob);
+          }, 'image/jpeg', 0.7); // 0.7 quality (good balance of quality/size)
+        };
+        
+        // Handle errors
+        video.onerror = () => {
+          URL.revokeObjectURL(videoURL);
+          reject(new Error('Error generating thumbnail'));
+        };
+        
+        // Start playing to seek
+        video.play().catch(() => {
+          // Some browsers require user interaction to play
+          // In this case, we'll just try without playing
+          video.currentTime = 1;
+        });
+      };
+  
+      // Handle metadata loading errors
+      video.onerror = () => {
+        URL.revokeObjectURL(videoURL);
+        reject(new Error('Error loading video metadata'));
+      };
+    });
+  }
+  
+
+
 // Set up event listeners
 function setupEventListeners() {
     // Video player controls
@@ -514,49 +580,60 @@ function addSystemMessage(message) {
 function uploadVideo() {
     const file = elements.fileInput.files[0];
     if (!file) {
-        showNotification('Please select a video file');
-        return;
+      showNotification('Please select a video file');
+      return;
     }
-    
+  
     // Check if file is a video
     if (!file.type.startsWith('video/')) {
-        showNotification('Only video files are allowed');
-        return;
+      showNotification('Only video files are allowed');
+      return;
     }
-    
+  
     // Show loader
     elements.uploadLoader.style.display = 'block';
-    elements.uploadStatus.textContent = 'Uploading...';
-    
-    // Create form data
-    const formData = new FormData();
-    formData.append('video', file);
-    
-    // Upload file
-    fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
-            return response.json();
-        })
-        .then(data => {
-            elements.uploadStatus.textContent = 'Upload successful!';
-            elements.fileInput.value = '';
-            showNotification('Video uploaded successfully');
-        })
-        .catch(error => {
-            console.error('Error uploading video:', error);
-            elements.uploadStatus.textContent = 'Upload failed: ' + error.message;
-            showNotification('Upload failed');
-        })
-        .finally(() => {
-            elements.uploadLoader.style.display = 'none';
+    elements.uploadStatus.textContent = 'Generating thumbnail...';
+  
+    // Generate thumbnail client-side first
+    generateThumbnail(file)
+      .then(thumbnailBlob => {
+        // Create form data with both video and thumbnail
+        const formData = new FormData();
+        formData.append('video', file);
+        
+        // Add thumbnail with a filename based on the video
+        const thumbnailFilename = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+        formData.append('thumbnail', thumbnailBlob, thumbnailFilename);
+        
+        elements.uploadStatus.textContent = 'Uploading...';
+        
+        // Upload files
+        return fetch('/api/upload', {
+          method: 'POST',
+          body: formData
         });
-}
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        elements.uploadStatus.textContent = 'Upload successful!';
+        elements.fileInput.value = '';
+        showNotification('Video uploaded successfully');
+      })
+      .catch(error => {
+        console.error('Error uploading video:', error);
+        elements.uploadStatus.textContent = 'Upload failed: ' + error.message;
+        showNotification('Upload failed');
+      })
+      .finally(() => {
+        elements.uploadLoader.style.display = 'none';
+      });
+  }
+  
 
 // Load available rooms
 function loadRooms() {
@@ -787,4 +864,3 @@ function generateThumbnail(videoFile) {
         elements.uploadLoader.style.display = 'none';
       });
   }
-  
