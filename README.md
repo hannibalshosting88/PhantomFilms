@@ -17,15 +17,16 @@ To run PhanFrame locally, follow these steps:
 
 1. Clone the repository:
    
-   git clone https://github.com/yourusername/phanframe.git
-   cd phanframe
+ ```  git clone https://github.com/hannibalshosting88/phanframe.git```
+   
    
 2. Install dependencies:
 
-   npm install
-3. Start the server:
+ ```  npm install```
+   
+4. Start the server:
 
-   npm start
+  ``` npm start```
    
 Open your browser and navigate to http://localhost:3000.
 
@@ -37,11 +38,11 @@ Back-end: Node.js, Express, Socket.io Server, Multer
 
 We're also packaged as Docker and have a pretty easy container.  
 
-docker pull hannibalshosting88/phantomfilms -p 3000:3000
 
-'''
+```docker pull hannibalshosting88/phantomfilms -p 3000:3000 ```
+
+```
 version: "3.8"
-
 services:
   my-webapp:
     image: hannibalshosting88/phantomfilms:latest
@@ -51,8 +52,7 @@ services:
       - app-data:/app/storage
       - configs:/app/config
     restart: unless-stopped
-
 volumes:
   app-data:
   configs:
-'''
+```
