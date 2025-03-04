@@ -16,28 +16,20 @@ PhanFrame is a web application that allows users to watch videos together in rea
 To run PhanFrame locally, follow these steps:
 
 1. Clone the repository:
-   ```bash
+   
    git clone https://github.com/yourusername/phanframe.git
    cd phanframe
-Install dependencies:
-bash
+   
+2. Install dependencies:
 
-Collapse
+   npm install
+3. Start the server:
 
-Wrap
-
-Copy
-npm install
-Start the server:
-bash
-
-Collapse
-
-Wrap
-
-Copy
-npm start
+   npm start
+   
 Open your browser and navigate to http://localhost:3000.
+
 Technologies Used
+
 Front-end: HTML, CSS, JavaScript, Socket.io Client
 Back-end: Node.js, Express, Socket.io Server, Multer
