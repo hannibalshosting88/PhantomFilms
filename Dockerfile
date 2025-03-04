@@ -2,24 +2,26 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Set up the app directory structure
+RUN mkdir -p public/media public/thumbnails
+
+# Copy package files first for better layer caching
 COPY package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Create necessary directories
-RUN mkdir -p public/media
+# Copy the server.js file
+COPY server.js ./
 
-# Copy the application files
+# Copy the public directory
 COPY public ./public
-COPY server.js ./server.js
 
-# Create media directory with proper permissions
-RUN chmod -R 777 public/media
+# Set appropriate permissions for upload directories
+RUN chmod -R 777 public/media public/thumbnails
 
-# Expose the port your app runs on
+# Define the exposed port
 EXPOSE 3000
 
-# Command to run the application
+# Set the command to run the application
 CMD ["node", "server.js"]
