@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>PhanFrame - Synchronized Video Chat</title>
+   <link rel="stylesheet" href="styles.css">
+   <!-- Font Awesome for icons -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <!-- Include Socket.io client library -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+</head>
+<body>
+   <div class="container">
+       <h1>PhanFrame</h1>
+       <h2>Synchronized Video Chat</h2>
+       
+       <!-- Room Selection Interface -->
+       <div class="room-interface">
+           <h3>Viewing Rooms</h3>
+           <div class="room-controls">
+               <input type="text" id="roomNameInput" placeholder="Room name">
+               <button id="createRoomButton">Create Room</button>
+           </div>
+           <div class="room-list" id="roomList">
+               <div class="room-item active" data-room="main">Main Room</div>
+           </div>
+       </div>
+       
+       <div class="video-chat-container">
+           <div class="video-container">
+               <video id="videoPlayer" controls>
+                   <source id="videoSource" src="" type="video/mp4">
+                   Your browser does not support the video tag.
+               </video>
+               <div class="controls">
+                   <button id="playButton"><i class="fas fa-play"></i> Play</button>
+                   <button id="pauseButton"><i class="fas fa-pause"></i> Pause</button>
+                   <button id="fullscreenButton"><i class="fas fa-expand"></i> Fullscreen</button>
+               </div>
+           </div>
+           
+           <div class="chat-container">
+               <div class="viewer-count">
+                   <span id="userCount">0</span> viewers watching
+               </div>
+               <div id="chatMessages"></div>
+               <div id="typingIndicator" class="typing-indicator"></div>
+               <div class="chat-input-container">
+                   <input type="text" id="chatInput" placeholder="Type your message...">
+                   <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+               </div>
+           </div>
+       </div>
+       
+       <div class="upload-container">
+           <h3>Upload a Video</h3>
+           <div class="upload-input">
+               <input type="file" id="fileInput" accept="video/*">
+               <button id="uploadButton">Upload <i class="fas fa-upload"></i></button>
+               <div class="loader" id="uploadLoader"></div>
+           </div>
+           <div id="uploadStatus"></div>
+       </div>
+       
+       <div class="video-list-container">
+           <h3>Available Videos</h3>
+           <div class="video-list" id="videoList">
+               <!-- Video items will be added here dynamically -->
+           </div>
+       </div>
+   </div>
+   
+   <div class="notification" id="notification"></div>
+   
+   <!-- Add the script file at the end of the body -->
+   <script src="main.js"></script>
+</body>
+</html>
+ 
