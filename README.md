@@ -1,4 +1,4 @@
-# PhanFrame
+# PhantomFrame(Films)
 
 PhanFrame is a web application that allows users to watch videos together in real-time, with synchronized playback and a built-in chat system. It's perfect for virtual watch parties, remote video discussions, or just hanging out with friends online.
 
@@ -28,13 +28,6 @@ To run PhanFrame locally, follow these steps:
 
   ``` npm start```
    
-Open your browser and navigate to http://localhost:3000.
-
-Technologies Used
-
-Front-end: HTML, CSS, JavaScript, Socket.io Client
-Back-end: Node.js, Express, Socket.io Server, Multer
-
 
 We're also packaged as Docker and have a pretty easy container.  
 
@@ -56,3 +49,12 @@ volumes:
   app-data:
   configs:
 ```
+
+Open your browser and navigate to http://localhost:3000
+
+
+
+Technologies Used
+
+Front-end: HTML, CSS, JavaScript, Socket.io Client
+Back-end: Node.js, Express, Socket.io Server, Multer
