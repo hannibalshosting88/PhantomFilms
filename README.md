@@ -39,11 +39,7 @@ We're also packaged as Docker and have a pretty easy container.
 
 docker pull hannibalshosting88/phantomfilms -p 3000:3000
 
-UNDER CONSTRUCTION!!! quick copypasta to get an ephemeral sharing theater up and running.
-
-No categories
-main
-yaml
+'''
 version: "3.8"
 
 services:
@@ -59,3 +55,4 @@ services:
 volumes:
   app-data:
   configs:
+'''
