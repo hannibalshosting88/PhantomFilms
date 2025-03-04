@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .video-container {
+            margin-bottom: 30px;
+        }
+        video {
+            max-width: 100%;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        #video-list-container {
+            margin-top: 20px;
+        }
+        .video-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        #log {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Test Page</h1>
+    
+    <div class="video-container">
+        <h2>Video Player</h2>
+        <video id="videoPlayer" controls>
+            <source id="videoSource" src="" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div>
+            <button id="playBtn">Play</button>
+            <button id="pauseBtn">Pause</button>
+        </div>
+    </div>
+    
+    <div id="video-list-container">
+        <h2>Available Videos</h2>
+        <div id="videoList"></div>
+    </div>
+    
+    <div>
+        <h2>Debug Log</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        // Elements
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoSource = document.getElementById('videoSource');
+        const videoList = document.getElementById('videoList');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const logElement = document.getElementById('log');
+        
+        // Helper function to log messages
+        function log(message) {
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        // Add video event listeners
+        videoPlayer.addEventListener('loadstart', () => log('Video: loadstart event'));
+        videoPlayer.addEventListener('loadedmetadata', () => log('Video: loadedmetadata event'));
+        videoPlayer.addEventListener('loadeddata', () => log('Video: loadeddata event'));
+        videoPlayer.addEventListener('canplay', () => log('Video: canplay event'));
+        videoPlayer.addEventListener('play', () => log('Video: play event'));
+        videoPlayer.addEventListener('pause', () => log('Video: pause event'));
+        videoPlayer.addEventListener('error', (e) => {
+            log(`Video error: ${videoPlayer.error ? videoPlayer.error.code : 'unknown'}`);
+            log(`Error message: ${videoPlayer.error ? videoPlayer.error.message : 'No details'}`);
+        });
+        
+        // Button event listeners
+        playBtn.addEventListener('click', () => {
+            log('Play button clicked');
+            videoPlayer.play().catch(e => log(`Play error: ${e.message}`));
+        });
+        
+        pauseBtn.addEventListener('click', () => {
+            log('Pause button clicked');
+            videoPlayer.pause();
+        });
+        
+        // Load video function
+        function loadVideo(videoUrl) {
+            log(`Loading video: ${videoUrl}`);
+            videoSource.src = videoUrl;
+            videoPlayer.load();
+        }
+        
+        // Load videos from API
+        function loadVideos() {
+            log('Fetching videos from API...');
+            fetch('/api/videos')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(videos => {
+                    log(`Received ${videos.length} videos from API`);
+                    videoList.innerHTML = '';
+                    
+                    videos.forEach(video => {
+                        const item = document.createElement('div');
+                        item.className = 'video-item';
+                        item.textContent = video.name;
+                        
+                        item.addEventListener('click', () => {
+                            log(`Selected video: ${video.name} (${video.url})`);
+                            loadVideo(video.url);
+                        });
+                        
+                        videoList.appendChild(item);
+                    });
+                })
+                .catch(error => {
+                    log(`Error loading videos: ${error.message}`);
+                });
+        }
+        
+        // Initialize
+        loadVideos();
+    </script>
+</body>
+</html>

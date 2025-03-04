@@ -399,6 +399,97 @@ io.on('connection', (socket) => {
   });
 });
 
+// Add this to your server.js to help debug video issues
+
+// Debug endpoint to check video files
+app.get('/api/debug/videos', (req, res) => {
+  const debugInfo = {
+    mediaDir: mediaDir,
+    exists: fs.existsSync(mediaDir),
+    files: [],
+    errors: []
+  };
+
+  try {
+    if (debugInfo.exists) {
+      // List all files
+      const files = fs.readdirSync(mediaDir);
+      
+      // Get details about each file
+      debugInfo.files = files.map(filename => {
+        try {
+          const filePath = path.join(mediaDir, filename);
+          const stats = fs.statSync(filePath);
+          
+          return {
+            name: filename,
+            path: filePath,
+            size: stats.size,
+            isFile: stats.isFile(),
+            created: stats.birthtime,
+            modified: stats.mtime,
+            url: `/media/${filename}`,
+            accessible: true
+          };
+        } catch (err) {
+          debugInfo.errors.push(`Error processing file ${filename}: ${err.message}`);
+          return {
+            name: filename,
+            error: err.message,
+            accessible: false
+          };
+        }
+      });
+    }
+  } catch (err) {
+    debugInfo.errors.push(`Error reading directory: ${err.message}`);
+  }
+
+  res.json(debugInfo);
+});
+
+// Debug endpoint to check a specific video
+app.get('/api/debug/video/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(mediaDir, filename);
+  
+  const debugInfo = {
+    filename: filename,
+    requestedPath: filePath,
+    exists: false,
+    error: null,
+    stats: null
+  };
+  
+  try {
+    if (fs.existsSync(filePath)) {
+      debugInfo.exists = true;
+      const stats = fs.statSync(filePath);
+      debugInfo.stats = {
+        size: stats.size,
+        isFile: stats.isFile(),
+        created: stats.birthtime,
+        modified: stats.mtime
+      };
+      
+      // Read the first few bytes to check file signature
+      const buffer = Buffer.alloc(16);
+      const fd = fs.openSync(filePath, 'r');
+      fs.readSync(fd, buffer, 0, 16, 0);
+      fs.closeSync(fd);
+      
+      // Convert to hex for debugging
+      debugInfo.fileSignature = buffer.toString('hex');
+    }
+  } catch (err) {
+    debugInfo.error = err.message;
+  }
+  
+  res.json(debugInfo);
+});
+
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
